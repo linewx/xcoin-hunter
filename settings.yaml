@@ -1,0 +1,2 @@
+DEFAULT:
+  dburl: "mysql+pymysql://root:root@localhost:3306/coin"
