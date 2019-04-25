@@ -18,6 +18,10 @@ class DBConnection:
     def query(self, sql):
         return self.engine.execute(sql).fetchall()
 
+    def save(self, table_name, content, reconcile_key):
+        pass
+
+
     def upsert(self, table_name, content, update_content):
         # one by one
         #print(content)
