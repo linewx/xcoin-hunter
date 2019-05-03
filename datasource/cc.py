@@ -1,6 +1,7 @@
 import requests
 from config.entity import CCHistory
 from config import Session
+import numpy as nm
 class CryptoCompareSource:
     url = "https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&allData=true"
 
@@ -29,6 +30,11 @@ class CryptoCompareSource:
             one_record['pair2'] = tsym
             session.add(CCHistory(**one_record))
         session.commit()
+
+    def get_data(self):
+        session = Session()
+        query = session.query(CCHistory).order_by(CCHistory.transactionTime)
+        return query.all()
 
 
 if __name__ == '__main__':

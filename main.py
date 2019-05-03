@@ -1,9 +1,8 @@
-from datasource.cc import CryptoCompareSource
+from platform.runner import Runner
 
 def main():
-    cc = CryptoCompareSource()
-    return cc.get_history_data('BTC', 'USD').json()
+    runner = Runner()
+    runner.run()
 
 if __name__ == '__main__':
-    result = main()
-    print(result)
+
