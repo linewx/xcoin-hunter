@@ -11,8 +11,17 @@ class AccountInfo:
     def __init__(self):
         self.account = {}
         self.expenseLines = ExpenseLine()
+        self.latest_tran_time = None
+
+    def charge(self, coin, amount):
+        if coin in self.account:
+            self.account[coin] = self.account[coin] + amount
+        else:
+            self.account[coin] = amount
+
 
     def exchange(self, pair1, pair2, price, amount, operation, transaction_time):
+        self.latest_tran_time = transaction_time
         '''
 
         :param pair1: 交易对中的源货币
@@ -50,3 +59,16 @@ class AccountInfo:
     def validate(self, coin):
         if self.account[coin] < 0:
             raise Exception("the account for %s is Overdraft" % coin)
+
+    def mvc(self):
+        '''most valuable coin in the accont'''
+        # todo: should consider the current price
+        # 现在的策略基本是全仓，所以比较数量就已经足够
+        result = None
+        current_amount = 0
+        for key in self.account:
+            if self.account[key] > current_amount:
+                result = key
+                current_amount = self.account[key]
+
+        return result

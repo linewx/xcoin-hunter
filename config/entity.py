@@ -24,6 +24,10 @@ class CCHistory(Base):
     insertTime = Column(Date)
 
 
+
+
+
+
 if __name__ == '__main__':
     engine = create_engine(settings.DBURL)
     Base.metadata.create_all(bind=engine)
