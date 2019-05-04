@@ -19,7 +19,6 @@ class AccountInfo:
         else:
             self.account[coin] = amount
 
-
     def exchange(self, pair1, pair2, price, amount, operation, transaction_time):
         self.latest_tran_time = transaction_time
         '''

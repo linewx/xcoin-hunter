@@ -1,5 +1,6 @@
 from config import db
-from runtime.runner import Runner
+from core.account import AccountInfo
+from runtime.runner import DailyRunner
 from strategy.avg_stratey import AvgStrategy
 
 
@@ -10,14 +11,12 @@ def get_btc_data():
 
 
 def main():
-    runner = Runner()
-    account_info = {
-        'USDT': 10000
-    }
+    runner = DailyRunner()
+    account_info = AccountInfo()
+    account_info.charge("USDT", 10000)
+
     runner.run(account_info, get_btc_data(), AvgStrategy())
 
 
 if __name__ == '__main__':
     main()
-    # print(db.query(
-    #     "select 'BTC', 'USDT', us_price,transaction_time from fxh_history where code='bitcoin' order by transaction_time"))
