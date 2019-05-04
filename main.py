@@ -1,7 +1,7 @@
 from config import db
 from core.account import AccountInfo
 from runtime.runner import DailyRunner
-from strategy.avg_stratey import AvgStrategy
+from strategy.avg_strategy import AvgStrategy
 
 
 def get_btc_data():
