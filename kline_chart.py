@@ -19,14 +19,3 @@ overlap.add(line)
 overlap.render()
 
 
-
-
-# from pyecharts import Bar,Line,Overlap
-# #overlap将多张图表整合到一个画板上
-# #绘制柱状图
-# hero = ['鲁班','妲己','程咬金','后裔']
-# death_times = [1200,600,90,1000]
-#
-# myBar = Bar("王者荣耀英雄死亡次数")
-# myBar.add("",hero,death_times)
-# myBar.render()
