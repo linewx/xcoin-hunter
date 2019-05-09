@@ -2,3 +2,4 @@
 *.iml
 *.pyc
 render.html
+.DS_Store
