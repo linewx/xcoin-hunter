@@ -1,7 +1,8 @@
 #!/bin/python
-from sqlalchemy import create_engine,inspect
-from pypika import Query, Table, Field
 import logging
+
+from pypika import Query, Table
+from sqlalchemy import create_engine, inspect
 
 
 class DBConnection:

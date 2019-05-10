@@ -8,8 +8,6 @@ import time
 import numpy as np
 import pandas as pd
 import talib
-from logbook import Logger
-
 from catalyst import run_algorithm
 from catalyst.api import symbol, record, order_target_percent
 from catalyst.exchange.utils.stats_utils import extract_transactions
@@ -18,6 +16,7 @@ from catalyst.exchange.utils.stats_utils import extract_transactions
 # directory. If we stop and start the algorithm, Catalyst will resume its
 # state using the files included in the folder.
 from catalyst.utils.paths import ensure_directory
+from logbook import Logger
 
 NAMESPACE = 'mean_reversion_simple'
 log = Logger(NAMESPACE)
@@ -33,7 +32,7 @@ def initialize(context):
     # parameters or values you're going to use.
 
     # In our example, we're looking at Neo in Ether.
-    context.market = symbol('bnb_eth')
+    context.market = symbol('btc_usdt')
     context.base_price = None
     context.current_day = None
 

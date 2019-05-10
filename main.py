@@ -1,10 +1,12 @@
+import time
+
+import pandas as pd
+
 from config import db
 from core.account import AccountInfo
 from runtime.runner import DailyRunner
 from strategy.avg_strategy import AvgStrategy
-import pandas as pd
-import numpy as np
-import time
+
 
 def get_btc_data():
     the_data = db.query(

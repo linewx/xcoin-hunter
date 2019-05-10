@@ -1,5 +1,6 @@
-from core.expenseline import ExpenseLine
 import logging
+
+from core.expenseline import ExpenseLine
 
 
 class AccountInfo:

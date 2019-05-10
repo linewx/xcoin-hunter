@@ -21,10 +21,10 @@
     To see which assets are available on each exchange, visit:
     https://www.enigma.co/catalyst/status
 """
+import matplotlib.pyplot as plt
+import pandas as pd
 from catalyst import run_algorithm
 from catalyst.api import order, record, symbol
-import pandas as pd
-import matplotlib.pyplot as plt
 
 
 def initialize(context):

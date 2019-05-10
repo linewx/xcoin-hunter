@@ -1,11 +1,11 @@
-from core import OPS_BUY
 import logging
 import time
-import pyecharts
-import talib
+
 import numpy as np
-import tushare as ts
-from pyecharts import Grid, Bar, Line, Kline, Overlap
+import talib
+from pyecharts import Line, Kline, Overlap
+
+from core import OPS_BUY
 
 
 class DailyRunner:

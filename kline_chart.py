@@ -1,8 +1,12 @@
-import pyecharts
 import talib
 import numpy as np
 import tushare as ts
-from pyecharts import Grid, Bar, Line, Kline, Overlap
+from pyecharts import Line, Kline, Overlap
+import numpy as np
+import talib
+import tushare as ts
+from pyecharts import Line, Kline, Overlap
+
 data = ts.get_k_data('399300', index=True, start='2017-01-01', end='2017-06-31')
 ochl = data[['open', 'close', 'high', 'low']]
 ochl_tolist = [ochl.ix[i].tolist() for i in range(len(ochl))]

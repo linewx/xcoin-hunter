@@ -1,8 +1,8 @@
-import talib
-import numpy as np
-import tushare as ts
-import matplotlib.pyplot as plt
 import matplotlib.finance as mpf
+import matplotlib.pyplot as plt
+import numpy as np
+import talib
+import tushare as ts
 
 data = ts.get_k_data('399300', index=True, start='2017-01-01', end='2017-06-31')
 sma_10 = talib.SMA(np.array(data['close']), 10)

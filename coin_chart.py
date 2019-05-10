@@ -1,9 +1,7 @@
-import pyecharts
 import talib
 import numpy as np
 import tushare as ts
-from pyecharts import Grid, Bar, Line, Kline, Overlap
-from pypika import Query, Table, Field
+from pyecharts import Line, Kline, Overlap
 from config import db
 from dynaconf import settings
 import time

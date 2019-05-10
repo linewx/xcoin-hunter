@@ -1,6 +1,9 @@
-import talib
 import time
+
 import numpy as np
+import talib
+
+
 class AvgIndicator:
     def calculate(self, the_data):
         close_data = [one_record.open for one_record in the_data]

@@ -1,7 +1,9 @@
 import requests
-from config.entity import CCHistory
+
 from config import Session
-import numpy as nm
+from config.entity import CCHistory
+
+
 class CryptoCompareSource:
     url = "https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&allData=true"
 
