@@ -228,5 +228,5 @@ if __name__ == '__main__':
         algo_namespace=NAMESPACE,
         quote_currency='usd',
         start=pd.to_datetime('2017-1-1', utc=True),
-        end=pd.to_datetime('2019-5-1', utc=True),
+        end=pd.to_datetime('2019-5-10', utc=True),
     )
