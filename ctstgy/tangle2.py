@@ -16,7 +16,14 @@ def initialize(context):
     context.tangles = []
     context.asset = symbol('btc_usd')
     context.base_price = None
+    context.last_days = 0
+    context.last_price = 0
 
+
+def std_percent(data):
+    mean = np.mean(data)
+    std = np.std(data ,ddof=1)
+    return std/mean
 
 def handle_data(context, data):
     # define the windows for the moving averages
@@ -30,6 +37,7 @@ def handle_data(context, data):
     window4 = 60
     tangle_threshold = 0.4
     tangle_window_size = 15
+
     # Skip as many bars as long_window to properly compute the average
     context.i += 1
     if context.i < long_window:
@@ -66,6 +74,8 @@ def handle_data(context, data):
                                 )
     mavg4 = window_data4.mean()
 
+
+
     current_order = 0
     if mavg1 < mavg2:
         current_order = current_order + 1
@@ -84,6 +94,28 @@ def handle_data(context, data):
 
     # Let's keep the price of our asset in a more handy variable
     price = data.current(context.asset, 'price')
+
+    std_per = std_percent([price, mavg1, mavg2, mavg3])
+    if std_per < 0.02:
+        # log.info(
+        #     '{}: std per: {}, '.format(
+        #         data.current_dt, std_per
+        #     )
+        # )
+        context.last_days = context.last_days + 1
+    else:
+
+        if context.last_days > 10 and price > context.last_price:
+            log.info(
+                '{}: time to buy something, '.format(
+                    data.current_dt
+                )
+            )
+        context.last_days = 0
+
+    context.last_price = price
+
+
 
     # If base_price is not set, we use the current value. This is the
     # price at the first bar which we reference to calculate price_change.
@@ -127,19 +159,19 @@ def handle_data(context, data):
     if current_tangle > tangle_threshold and pos_amount == 0:
         # we buy 100% of our portfolio for this asset
         order_target_percent(context.asset, 1)
-        log.info(
-            '{}: buying - price: {}, '.format(
-                data.current_dt, price
-            )
-        )
+        # log.info(
+        #     '{}: buying - price: {}, '.format(
+        #         data.current_dt, price
+        #     )
+        # )
     elif mavg1 < mavg3 and pos_amount > 0:
         # we sell all our positions for this asset
         order_target_percent(context.asset, 0)
-        log.info(
-            '{}: selling - price: {}, '.format(
-                data.current_dt, price
-            )
-        )
+        # log.info(
+        #     '{}: selling - price: {}, '.format(
+        #         data.current_dt, price
+        #     )
+        # )
 
 
 def analyze(context, perf):
