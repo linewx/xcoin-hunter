@@ -67,7 +67,6 @@ def main():
     stock_analyzer.add_rule(NotDRRule())
     stock_analyzer.add_rule(RateRule())
 
-    stock = HSStock()
     all_days = (stock.previous_days(30))
     result = None
     for one_day in all_days:
@@ -78,10 +77,12 @@ def main():
             result = result.append(one_day_result)
 
     all_codes = result['ts_code'].unique()
+
     for one_code in all_codes:
         one_stock = result.loc[lambda df: df['ts_code'] == one_code].sort_values('trade_date')
-        if stock_analyzer.analyze(one_code, one_stock):
-            print(one_code)
+        is_match, real_change = stock_analyzer.analyze2(one_code, one_stock, 10)
+        if is_match:
+            print(one_code, real_change)
 
 
 def store_comp_basic_info():

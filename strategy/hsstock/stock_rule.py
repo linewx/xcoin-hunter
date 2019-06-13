@@ -17,6 +17,22 @@ class StockAnalyzer:
 
         return result
 
+    def analyze2(self, ts_code, stock_data, ndays):
+        result = True
+        change = None
+        the_stock_data = stock_data
+        if ndays > 0:
+            the_stock_data = stock_data.iloc[:0-ndays]
+
+        for one_rule in self.rules:
+            result = one_rule.match(ts_code, the_stock_data)
+            if not result:
+                return False, None
+        if ndays != 0:
+            change = stock_data['pct_chg'].iloc[0-ndays]
+
+        return result, change
+
 
 class StockRule:
     def match(self, ts_code, stock_data):
@@ -31,6 +47,10 @@ class RsiRule(StockRule):
         self.threshold = threshold
 
     def match(self, ts_code, stock_data):
+        if stock_data['close'].empty:
+            return False
+
+
         rsi6 = talib.RSI(stock_data['close'], timeperiod=6)
         latest_rsi = rsi6.iloc[-1]
 
@@ -116,7 +136,6 @@ class RateRule(StockRule):
         self.rate = rate
 
     def match(self, ts_code, stock_data):
-        previous = None
         if stock_data['pct_chg'].iloc[-1] < self.rate:
             return False
 
