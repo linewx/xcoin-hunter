@@ -22,6 +22,9 @@ class DBConnection:
     def save(self, table_name, content, reconcile_key):
         pass
 
+    def get_engine(self):
+        return self.engine
+
 
     def upsert(self, table_name, content, update_content):
         # one by one
