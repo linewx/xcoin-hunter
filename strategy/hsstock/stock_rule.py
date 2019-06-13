@@ -101,10 +101,26 @@ class NotDRRule(StockRule):
                 pct_chg = one_data['pct_chg']
                 if abs(the_pct_chg - pct_chg) > 1:
                     return False
-                #if per_change < 0.8 or per_change > 1.2:
+                # if per_change < 0.8 or per_change > 1.2:
                 #    return False
             previous = one_data['close']
         return True
 
     def get_name(self):
         return 'dr'
+
+
+class RateRule(StockRule):
+    # 最近的增长率
+    def __init__(self, rate=-6):
+        self.rate = rate
+
+    def match(self, ts_code, stock_data):
+        previous = None
+        if stock_data['pct_chg'].iloc[-1] < self.rate:
+            return False
+
+        return True
+
+    def get_name(self):
+        return 'rate'

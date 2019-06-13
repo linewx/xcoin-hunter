@@ -5,7 +5,8 @@ import talib
 import tushare as ts
 
 from config import DBConnection
-from strategy.hsstock.stock_rule import StockAnalyzer, RsiRule, NotSTRule, NotDelistRule, ValidCompRule, NotDRRule
+from strategy.hsstock.stock_rule import StockAnalyzer, RsiRule, NotSTRule, NotDelistRule, ValidCompRule, NotDRRule, \
+    RateRule
 
 
 class HSStock:
@@ -88,6 +89,7 @@ def main():
     stock_analyzer.add_rule(NotDelistRule(all_comp))
     stock_analyzer.add_rule(ValidCompRule(all_comp))
     stock_analyzer.add_rule(NotDRRule())
+    stock_analyzer.add_rule(RateRule())
 
     stock = HSStock()
     all_days = (stock.previous_days(30))
