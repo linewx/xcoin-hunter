@@ -4,6 +4,7 @@ from config import Session
 from config.entity import CCHistory
 
 
+## coin client
 class CryptoCompareSource:
     url = "https://min-api.cryptocompare.com/data/histoday?fsym=BTC&tsym=USD&allData=true"
 
@@ -26,7 +27,6 @@ class CryptoCompareSource:
             one_record['transactionTime'] = one_record.pop('time')
             one_record['volumeFrom'] = one_record.pop('volumefrom')
             one_record['volumeTo'] = one_record.pop('volumeto')
-
 
             one_record['pair1'] = fsym
             one_record['pair2'] = tsym

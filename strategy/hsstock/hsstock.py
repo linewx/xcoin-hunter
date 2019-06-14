@@ -44,7 +44,7 @@ class HSStock:
         return results
 
     def save_comp_basic_info(self):
-        results = self.tsapi.stock_basic(exchange='', fields='ts_code,symbol,name,area,industry,list_date')
+        #results = self.tsapi.stock_basic(exchange='', fields='ts_code,symbol,name,area,industry,list_date')
         results = self.tsapi.stock_basic(exchange='', list_status='L',
                                          fields='ts_code,symbol,name,area,industry,list_date')
         results.to_sql(self.basic_info_table_name, self.db.get_engine(), if_exists='replace')
@@ -67,7 +67,7 @@ def main():
     stock_analyzer.add_rule(NotDRRule())
     stock_analyzer.add_rule(RateRule())
 
-    all_days = (stock.previous_days(30))
+    all_days = (stock.previous_days(200))
     result = None
     for one_day in all_days:
         one_day_result = stock.get_trade_data_by_date(one_day)
@@ -80,7 +80,7 @@ def main():
 
     for one_code in all_codes:
         one_stock = result.loc[lambda df: df['ts_code'] == one_code].sort_values('trade_date')
-        is_match, real_change = stock_analyzer.analyze2(one_code, one_stock, 10)
+        is_match, real_change = stock_analyzer.analyze2(one_code, one_stock, 30)
         if is_match:
             print(one_code, real_change)
 

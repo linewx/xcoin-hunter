@@ -30,4 +30,3 @@ def previous_days(days: int):
 
 if __name__ == '__main__':
     print(previous_days(20))
-    # print(get_tran_dates_from_db())

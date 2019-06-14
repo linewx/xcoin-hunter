@@ -5,7 +5,7 @@ from pypika import Query, Table
 from sqlalchemy import create_engine, inspect
 
 
-class DBConnection:
+class DBClient:
     def __init__(self, db_url):
         self.engine = create_engine(db_url)
         self.inspector = inspect(self.engine)

@@ -1,2 +1,4 @@
 DEFAULT:
   dburl: "mysql+pymysql://root:root@localhost:3306/coin"
+  stock:
+    token: 'aa4223d759e37de759513fca3a7c2edf86fb60f521f91b183a05f8bd'

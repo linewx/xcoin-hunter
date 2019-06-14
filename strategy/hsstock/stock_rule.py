@@ -22,14 +22,14 @@ class StockAnalyzer:
         change = None
         the_stock_data = stock_data
         if ndays > 0:
-            the_stock_data = stock_data.iloc[:0-ndays]
+            the_stock_data = stock_data.iloc[:0 - ndays]
 
         for one_rule in self.rules:
             result = one_rule.match(ts_code, the_stock_data)
             if not result:
                 return False, None
         if ndays != 0:
-            change = stock_data['pct_chg'].iloc[0-ndays]
+            change = stock_data['pct_chg'].iloc[0 - ndays]
 
         return result, change
 
@@ -49,7 +49,6 @@ class RsiRule(StockRule):
     def match(self, ts_code, stock_data):
         if stock_data['close'].empty:
             return False
-
 
         rsi6 = talib.RSI(stock_data['close'], timeperiod=6)
         latest_rsi = rsi6.iloc[-1]
