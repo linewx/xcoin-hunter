@@ -5,7 +5,7 @@ class StockClient:
     def __init__(self, token=None):
         self.ts_client = ts.pro_api(token)
 
-    def get_basic_info(self, exchange='', status='L', fields='ts_code,symbol,name,area,industry,list_date'):
+    def get_basic_info(self, exchange='', status='L', fields='ts_code,symbol,name,area,industry,fullname,enname,market,exchange,curr_type,list_status,list_date,delist_date,is_hs'):
         data = self.ts_client.stock_basic(exchange=exchange, list_status=status, fields=fields)
         return data
 
