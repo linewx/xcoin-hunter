@@ -21,7 +21,7 @@ class StockAnalyzer:
 
     def analyze_on_date(self, the_date):
         # prepare data
-        start_date = self.stock_service.cal_trade_day(the_date, -10)
+        start_date = self.stock_service.cal_trade_day(the_date, -30)
         # date_range = self.stock_service.get_trade_daterange(start_date, the_date)
         stock_data = self.stock_service.get_trade_data(start_date, the_date)
 

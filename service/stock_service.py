@@ -71,17 +71,20 @@ class StockService:
                     results.to_sql(self.history_table_name, self.db_client.get_engine(), if_exists='append')
             self.stock_history_data[trade_date] = results
             return results
+        else:
+            return self.stock_history_data[trade_date]
+
 
     def cal_trade_day(self, the_date, days):
         if days >= 0:
             filtered_trade_day = \
-            self.get_all_trade_cal().loc[lambda df: (df['cal_date'] >= the_date) & (df['is_open'] == 1)][
-                'cal_date'].values
+                self.get_all_trade_cal().loc[lambda df: (df['cal_date'] >= the_date) & (df['is_open'] == 1)][
+                    'cal_date'].values
             return filtered_trade_day[days]
         else:
             filtered_trade_day = \
-            self.get_all_trade_cal().loc[lambda df: (df['cal_date'] < the_date) & (df['is_open'] == 1)][
-                'cal_date'].values
+                self.get_all_trade_cal().loc[lambda df: (df['cal_date'] < the_date) & (df['is_open'] == 1)][
+                    'cal_date'].values
             return filtered_trade_day[days]
 
     def get_trade_daterange(self, start_date, end_date=None):
