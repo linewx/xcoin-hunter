@@ -1,5 +1,6 @@
 import talib
 import logging
+
 from service.stock_service import StockService
 
 
@@ -21,20 +22,18 @@ class StockAnalyzer:
     def analyze_on_date(self, the_date):
         # prepare data
         start_date = self.stock_service.cal_trade_day(the_date, -10)
-        #date_range = self.stock_service.get_trade_daterange(start_date, the_date)
+        # date_range = self.stock_service.get_trade_daterange(start_date, the_date)
         stock_data = self.stock_service.get_trade_data(start_date, the_date)
-
 
         all_stock_codes = self.stock_service.get_all_stock_code()
 
         results = []
         for one_ts_code in all_stock_codes:
-            if self._match_all_rules(one_ts_code, stock_data):
+            one_stock_data = stock_data[stock_data['ts_code'] == one_ts_code]
+            if self._match_all_rules(one_ts_code, one_stock_data):
                 results.append(one_ts_code)
 
         return results
-
-
 
     def _match_all_rules(self, ts_code, stock_data):
         result = True
@@ -42,7 +41,7 @@ class StockAnalyzer:
             result = one_rule.match(ts_code, stock_data)
             if not result:
                 return False
-
+        # print('matched')
         return result
 
     def analyze2(self, ts_code, stock_data, ndays):
