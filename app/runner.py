@@ -31,5 +31,5 @@ stock_analyzer.add_rule(ValidCompRule(stock_info))
 stock_analyzer.add_rule(NotDRRule())
 stock_analyzer.add_rule(RateRule())
 
-stock_analyzer.analyze_all('20190613')
+stock_analyzer.backtest('20190613')
 

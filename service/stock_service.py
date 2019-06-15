@@ -74,7 +74,6 @@ class StockService:
         else:
             return self.stock_history_data[trade_date]
 
-
     def cal_trade_day(self, the_date, days):
         if days >= 0:
             filtered_trade_day = \

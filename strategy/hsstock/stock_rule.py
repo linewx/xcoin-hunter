@@ -19,6 +19,21 @@ class StockAnalyzer:
             one_result = self.analyze_on_date(one_trade_date)
             print(one_result)
 
+    def compare_result(self, ts_code, trade_date):
+        next_trade_date = self.stock_service.cal_trade_day(trade_date, 1)
+        the_stock_data = self.stock_service.get_trade_data_by_date(next_trade_date).loc[lambda df: df['ts_code'] == ts_code]
+        if not the_stock_data.empty:
+            print(ts_code, the_stock_data['pct_chg'].iloc[0])
+
+    def backtest(self, start_date, end_date=None):
+        trade_dates = self.stock_service.get_trade_daterange(start_date, end_date)
+        for one_trade_date in trade_dates:
+            print("\n\non date %s:" % one_trade_date)
+            one_result = self.analyze_on_date(one_trade_date)
+
+            for one_ts_code in one_result:
+                self.compare_result(one_ts_code, one_trade_date)
+
     def analyze_on_date(self, the_date):
         # prepare data
         start_date = self.stock_service.cal_trade_day(the_date, -30)
@@ -41,7 +56,6 @@ class StockAnalyzer:
             result = one_rule.match(ts_code, stock_data)
             if not result:
                 return False
-        # print('matched')
         return result
 
     def analyze2(self, ts_code, stock_data, ndays):
