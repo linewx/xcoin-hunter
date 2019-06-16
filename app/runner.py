@@ -7,7 +7,7 @@ from client.index_client import IndexClient
 from service.index_service import IndexService
 from service.stock_service import StockService
 from strategy.hsstock.stock_rule import StockAnalyzer, RsiRule, NotSTRule, NotDelistRule, ValidCompRule, NotDRRule, \
-    RateRule, DecreaseRateRule, BreakthroughRule, BreakthroughRule2
+    RateRule, DecreaseRateRule, BreakthroughRule, BreakthroughRule2, BreakthroughRule3
 
 db_client = DBClient(settings.DBURL)
 stock_client = StockClient(settings.STOCK.TOKEN)
@@ -37,12 +37,13 @@ stock_info = stock_service.get_all_stock_info()
 # stock_analyzer.add_rule(RateRule())
 # stock_analyzer.add_rule(DecreaseRateRule())
 
-stock_analyzer.add_rule(BreakthroughRule2(60, 2, 0.6))
+#stock_analyzer.add_rule(BreakthroughRule2(60, 2, 0.6))
+stock_analyzer.add_rule(BreakthroughRule3())
+stock_analyzer.add_rule(BreakthroughRule3(threashold=10, torlerence=0, break_degree=0.93, field='high', amplitude=20))
 start_time = datetime.datetime.now()
 stock_service.preload_data()
-stock_analyzer.backtest('20190501', '20190510')
+stock_analyzer.backtest('20190101', '20190110')
 print(datetime.datetime.now() - start_time)
-#stock_service.preload_data()
 
 
 

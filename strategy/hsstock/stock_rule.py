@@ -25,7 +25,7 @@ class StockAnalyzer:
 
     def compare_result(self, ts_code, trade_date):
         next_start_date = self.stock_service.cal_trade_day(trade_date, 1)
-        next_end_date = self.stock_service.cal_trade_day(trade_date, 5)
+        next_end_date = self.stock_service.cal_trade_day(trade_date, 10)
         the_stock_data = self.stock_service.get_trade_data(next_start_date, next_end_date).loc[
             lambda df: df['ts_code'] == ts_code]
         if not the_stock_data.empty:
@@ -37,8 +37,8 @@ class StockAnalyzer:
             print("\n\non date %s:" % one_trade_date)
             one_result = self.analyze_on_date(one_trade_date)
 
-            for one_ts_code in one_result:
-                self.compare_result(one_ts_code, one_trade_date)
+            # for one_ts_code in one_result:
+            #     self.compare_result(one_ts_code, one_trade_date)
 
     def run_analysis(self, ts_code, stock_data, results):
         one_stock_data = stock_data[stock_data['ts_code'] == ts_code]
@@ -49,11 +49,11 @@ class StockAnalyzer:
         # prepare data
         start_date = self.stock_service.cal_trade_day(the_date, -100)
         start_time = datetime.datetime.now()
-        print('starting...')
+        #print('starting...')
         stock_data = self.stock_service.get_trade_data(start_date, the_date)
         end_time = datetime.datetime.now()
-        print(end_time - start_time)
-        print('ending...')
+        #print(end_time - start_time)
+        #print('ending...')
         all_stock_codes = self.stock_service.get_all_stock_code()
 
         results = []
@@ -63,20 +63,26 @@ class StockAnalyzer:
             # processes.append(p)
             # p.start()
             one_stock_data = stock_data[stock_data['ts_code'] == one_ts_code]
-            if self._match_all_rules(one_ts_code, one_stock_data):
+            result, details = self._match_all_rules(one_ts_code, one_stock_data)
+            if result:
                 results.append(one_ts_code)
-        # for one_process in processes:
-        #     one_process.join()
+                self.compare_result(one_ts_code, the_date)
+                print(details)
+                print("\n")
+
         print(datetime.datetime.now() - start_time)
         return results
 
     def _match_all_rules(self, ts_code, stock_data):
         result = True
+        details = {}
         for one_rule in self.rules:
-            result = one_rule.match(ts_code, stock_data)
+            result, detail = one_rule.match(ts_code, stock_data)
             if not result:
-                return False
-        return result
+                return False, details
+            else:
+                details[one_rule.get_name()] = detail
+        return result, details
 
     def analyze2(self, ts_code, stock_data, ndays):
         result = True
@@ -139,7 +145,7 @@ class BreakthroughRule2(StockRule):
     def match(self, ts_code, stock_data):
         start_time = datetime.datetime.now()
         if stock_data.empty:
-            return False
+            return False,None
 
         # 通过增长率
         all_per_chg = stock_data['pct_chg'].values
@@ -157,32 +163,34 @@ class BreakthroughRule2(StockRule):
                 else:
                     break
         if latest_data >= 5 and low_count >= self.threashold:
-            print(ts_code, low_count)
-            return True
+            return True,None
         else:
-            return False
+            return False,None
 
 
 class BreakthroughRule3(StockRule):
     # 向上突破
-    def __init__(self, threashold=30, torlerence=3, break_degree=0.6):
+    def __init__(self, threashold=10, torlerence=0, break_degree=0.93, field='high', amplitude=20):
         self.threashold = threashold
         self.torlerence = torlerence
         self.break_degree = break_degree
+        self.field = field
+        self.amplitude = amplitude  # 振幅
 
     def match(self, ts_code, stock_data):
-        start_time = datetime.datetime.now()
         if stock_data.empty:
-            return False
+            return False,None
 
         # 通过增长率
-        all_per_chg = stock_data['pct_chg'].values
+        latest_data = stock_data.iloc[-1]
         low_count = 0
         high_count = 0
-        latest_data = all_per_chg[-1]
-        for one_chg in all_per_chg[::-1][1:]:
-
-            if latest_data < 9 and one_chg < latest_data * self.break_degree:
+        highest_value = 0
+        lowest_value = 10000
+        for one_index, one_data in stock_data[::-1][1:].iterrows():
+            highest_value = max(highest_value, one_data['high'])
+            lowest_value = min(lowest_value, one_data['low'])
+            if one_data[self.field] < latest_data[self.field] * self.break_degree:
                 low_count = low_count + 1
             else:
                 high_count = high_count + 1
@@ -190,12 +198,21 @@ class BreakthroughRule3(StockRule):
                     continue
                 else:
                     break
-        if latest_data >= 5 and low_count >= self.threashold:
-            print(ts_code, low_count)
-            return True
-        else:
-            return False
 
+        if (highest_value / lowest_value - 1) * 100 <= self.amplitude and low_count >= self.threashold:
+            #print(ts_code, low_count, highest_value, lowest_value)
+            return True, {
+                'ts_code': ts_code,
+                'low_count': low_count,
+                'highest_value': highest_value,
+                'lowest_value': lowest_value,
+                'pct_change': latest_data['pct_chg']
+            }
+        else:
+            return False,None
+
+    def get_name(self):
+        return 'break3'
 
 class RsiRule(StockRule):
     def __init__(self, threshold):
