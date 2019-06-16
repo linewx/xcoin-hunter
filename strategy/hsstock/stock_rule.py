@@ -1,4 +1,6 @@
 import datetime
+import multiprocessing
+import threading
 
 import talib
 import logging
@@ -38,6 +40,11 @@ class StockAnalyzer:
             for one_ts_code in one_result:
                 self.compare_result(one_ts_code, one_trade_date)
 
+    def run_analysis(self, ts_code, stock_data, results):
+        one_stock_data = stock_data[stock_data['ts_code'] == ts_code]
+        if self._match_all_rules(ts_code, one_stock_data):
+            results.append(ts_code)
+
     def analyze_on_date(self, the_date):
         # prepare data
         start_date = self.stock_service.cal_trade_day(the_date, -100)
@@ -50,11 +57,17 @@ class StockAnalyzer:
         all_stock_codes = self.stock_service.get_all_stock_code()
 
         results = []
+        start_time = datetime.datetime.now()
         for one_ts_code in all_stock_codes:
+            # p = multiprocessing.Process(target=self.run_analysis,args=(one_ts_code, stock_data, results))
+            # processes.append(p)
+            # p.start()
             one_stock_data = stock_data[stock_data['ts_code'] == one_ts_code]
             if self._match_all_rules(one_ts_code, one_stock_data):
                 results.append(one_ts_code)
-
+        # for one_process in processes:
+        #     one_process.join()
+        print(datetime.datetime.now() - start_time)
         return results
 
     def _match_all_rules(self, ts_code, stock_data):
@@ -118,12 +131,13 @@ class BreakthroughRule(StockRule):
 
 class BreakthroughRule2(StockRule):
     # 向上突破
-    def __init__(self, threashold=30 , torlerence=3, break_degree=0.6):
+    def __init__(self, threashold=30, torlerence=3, break_degree=0.6):
         self.threashold = threashold
         self.torlerence = torlerence
         self.break_degree = break_degree
 
     def match(self, ts_code, stock_data):
+        start_time = datetime.datetime.now()
         if stock_data.empty:
             return False
 
@@ -133,7 +147,7 @@ class BreakthroughRule2(StockRule):
         high_count = 0
         latest_data = all_per_chg[-1]
         for one_chg in all_per_chg[::-1][1:]:
-            # if one_chg < 3 and one_chg > -5:
+
             if latest_data < 9 and one_chg < latest_data * self.break_degree:
                 low_count = low_count + 1
             else:
@@ -142,8 +156,6 @@ class BreakthroughRule2(StockRule):
                     continue
                 else:
                     break
-
-
         if latest_data >= 5 and low_count >= self.threashold:
             print(ts_code, low_count)
             return True
@@ -153,26 +165,33 @@ class BreakthroughRule2(StockRule):
 
 class BreakthroughRule3(StockRule):
     # 向上突破
-    def __init__(self, ):
-        pass
+    def __init__(self, threashold=30, torlerence=3, break_degree=0.6):
+        self.threashold = threashold
+        self.torlerence = torlerence
+        self.break_degree = break_degree
 
     def match(self, ts_code, stock_data):
+        start_time = datetime.datetime.now()
         if stock_data.empty:
             return False
 
-        # 通过最高和最低值
+        # 通过增长率
         all_per_chg = stock_data['pct_chg'].values
-        result = 0
+        low_count = 0
+        high_count = 0
         latest_data = all_per_chg[-1]
         for one_chg in all_per_chg[::-1][1:]:
-            # if one_chg < 3 and one_chg > -5:
-            if latest_data < 9 and one_chg < latest_data * 0.6:
-                result = result + 1
-            else:
-                break
 
-        if stock_data['pct_chg'].iloc[-1] >= 5 and result > 30:
-            print(ts_code, result)
+            if latest_data < 9 and one_chg < latest_data * self.break_degree:
+                low_count = low_count + 1
+            else:
+                high_count = high_count + 1
+                if high_count <= self.torlerence:
+                    continue
+                else:
+                    break
+        if latest_data >= 5 and low_count >= self.threashold:
+            print(ts_code, low_count)
             return True
         else:
             return False

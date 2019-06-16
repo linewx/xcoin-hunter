@@ -23,6 +23,15 @@ class StockService:
         self.all_stock_info = None
         self.stock_history_data = {}
 
+    def preload_data(self, start_date=None, end_date=get_today()):
+        if start_date is None:
+            all_data = pd.read_sql("select * from %s" % self.history_table_name,
+                                   self.db_client.get_engine())
+            all_trade_dates = all_data['trade_date'].unique()
+            for one_trade_date in all_trade_dates:
+                self.stock_history_data[one_trade_date] = all_data.loc[
+                    lambda df: df['trade_date'] == one_trade_date]
+
     def _persist_trade_cal(self, start_date='', end_date=''):
         trade_cal = self.stock_client.get_trade_cal(start_date=start_date,
                                                     end_date=end_date)
@@ -42,7 +51,7 @@ class StockService:
         return self.all_stock_info
 
     def get_all_stock_code(self):
-        return self.get_all_stock_info()['ts_code'].values
+        return self.get_all_stock_info().loc[lambda df: df['market'] == '主板']['ts_code'].values
 
     def get_all_trade_cal(self):
         if self.trade_cal is None:

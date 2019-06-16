@@ -39,8 +39,11 @@ stock_info = stock_service.get_all_stock_info()
 
 stock_analyzer.add_rule(BreakthroughRule2(60, 2, 0.6))
 start_time = datetime.datetime.now()
-print(stock_service.get())
+stock_service.preload_data()
+stock_analyzer.backtest('20190501', '20190510')
 print(datetime.datetime.now() - start_time)
-#stock_analyzer.backtest('20190501', '20190510')
+#stock_service.preload_data()
+
+
 
 
