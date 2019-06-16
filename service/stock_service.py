@@ -53,6 +53,10 @@ class StockService:
         all_trade_cal = self.get_all_trade_cal()
         return all_trade_cal.loc[all_trade_cal.cal_date == the_date]['is_open'].iloc[0]
 
+    def test_get_all_trade_data(self):
+        return pd.read_sql("select * from %s " % (self.history_table_name),
+                           self.db_client.get_engine())
+
     def get_trade_data_by_date(self, trade_date=None):
 
         if trade_date is None:

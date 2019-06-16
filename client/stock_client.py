@@ -16,3 +16,5 @@ class StockClient:
         return self.ts_client.daily(trade_date=trade_date)
 
 
+
+

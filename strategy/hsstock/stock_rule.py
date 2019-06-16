@@ -1,3 +1,5 @@
+import datetime
+
 import talib
 import logging
 
@@ -20,10 +22,12 @@ class StockAnalyzer:
             print(one_result)
 
     def compare_result(self, ts_code, trade_date):
-        next_trade_date = self.stock_service.cal_trade_day(trade_date, 1)
-        the_stock_data = self.stock_service.get_trade_data_by_date(next_trade_date).loc[lambda df: df['ts_code'] == ts_code]
+        next_start_date = self.stock_service.cal_trade_day(trade_date, 1)
+        next_end_date = self.stock_service.cal_trade_day(trade_date, 5)
+        the_stock_data = self.stock_service.get_trade_data(next_start_date, next_end_date).loc[
+            lambda df: df['ts_code'] == ts_code]
         if not the_stock_data.empty:
-            print(ts_code, the_stock_data['pct_chg'].iloc[0])
+            print(ts_code, the_stock_data['pct_chg'].values)
 
     def backtest(self, start_date, end_date=None):
         trade_dates = self.stock_service.get_trade_daterange(start_date, end_date)
@@ -36,10 +40,13 @@ class StockAnalyzer:
 
     def analyze_on_date(self, the_date):
         # prepare data
-        start_date = self.stock_service.cal_trade_day(the_date, -30)
-        # date_range = self.stock_service.get_trade_daterange(start_date, the_date)
+        start_date = self.stock_service.cal_trade_day(the_date, -100)
+        start_time = datetime.datetime.now()
+        print('starting...')
         stock_data = self.stock_service.get_trade_data(start_date, the_date)
-
+        end_time = datetime.datetime.now()
+        print(end_time - start_time)
+        print('ending...')
         all_stock_codes = self.stock_service.get_all_stock_code()
 
         results = []
@@ -81,6 +88,94 @@ class StockRule:
 
     def get_name(self):
         pass
+
+
+class BreakthroughRule(StockRule):
+    # 向上突破
+    def __init__(self):
+        pass
+
+    def match(self, ts_code, stock_data):
+        if stock_data.empty:
+            return False
+
+        # 计算稳定系数
+        all_per_chg = stock_data['pct_chg'].values
+        result = 0
+        latest_data = all_per_chg[-1]
+        for one_chg in all_per_chg[::-1][1:]:
+            # if one_chg < 3 and one_chg > -5:
+            if latest_data < 9 and one_chg < latest_data * 0.6:
+                result = result + 1
+            else:
+                break
+
+        if stock_data['pct_chg'].iloc[-1] >= 5 and result > 30:
+            return True
+        else:
+            return False
+
+
+class BreakthroughRule2(StockRule):
+    # 向上突破
+    def __init__(self, threashold=30 , torlerence=3, break_degree=0.6):
+        self.threashold = threashold
+        self.torlerence = torlerence
+        self.break_degree = break_degree
+
+    def match(self, ts_code, stock_data):
+        if stock_data.empty:
+            return False
+
+        # 通过增长率
+        all_per_chg = stock_data['pct_chg'].values
+        low_count = 0
+        high_count = 0
+        latest_data = all_per_chg[-1]
+        for one_chg in all_per_chg[::-1][1:]:
+            # if one_chg < 3 and one_chg > -5:
+            if latest_data < 9 and one_chg < latest_data * self.break_degree:
+                low_count = low_count + 1
+            else:
+                high_count = high_count + 1
+                if high_count <= self.torlerence:
+                    continue
+                else:
+                    break
+
+
+        if latest_data >= 5 and low_count >= self.threashold:
+            print(ts_code, low_count)
+            return True
+        else:
+            return False
+
+
+class BreakthroughRule3(StockRule):
+    # 向上突破
+    def __init__(self, ):
+        pass
+
+    def match(self, ts_code, stock_data):
+        if stock_data.empty:
+            return False
+
+        # 通过最高和最低值
+        all_per_chg = stock_data['pct_chg'].values
+        result = 0
+        latest_data = all_per_chg[-1]
+        for one_chg in all_per_chg[::-1][1:]:
+            # if one_chg < 3 and one_chg > -5:
+            if latest_data < 9 and one_chg < latest_data * 0.6:
+                result = result + 1
+            else:
+                break
+
+        if stock_data['pct_chg'].iloc[-1] >= 5 and result > 30:
+            print(ts_code, result)
+            return True
+        else:
+            return False
 
 
 class RsiRule(StockRule):
@@ -172,7 +267,7 @@ class NotDRRule(StockRule):
 
 class RateRule(StockRule):
     # 最近的增长率
-    def __init__(self, rate=-6):
+    def __init__(self, rate=-2):
         self.rate = rate
 
     def match(self, ts_code, stock_data):
@@ -183,3 +278,15 @@ class RateRule(StockRule):
 
     def get_name(self):
         return 'rate'
+
+
+class DecreaseRateRule(StockRule):
+
+    # 是否加速下跌
+    def match(self, ts_code, stock_data):
+        if stock_data['pct_chg'].iloc[-1] < stock_data['pct_chg'].iloc[-2]:
+            return False
+        return True
+
+    def get_name(self):
+        return 'decrease_rate'
