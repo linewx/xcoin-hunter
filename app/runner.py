@@ -38,11 +38,12 @@ stock_info = stock_service.get_all_stock_info()
 # stock_analyzer.add_rule(DecreaseRateRule())
 
 #stock_analyzer.add_rule(BreakthroughRule2(60, 2, 0.6))
-stock_analyzer.add_rule(BreakthroughRule3())
-stock_analyzer.add_rule(BreakthroughRule3(threashold=10, torlerence=0, break_degree=0.93, field='high', amplitude=20))
+#$stock_analyzer.add_rule(BreakthroughRule3())
+#stock_analyzer.add_rule(BreakthroughRule3(threashold=30, torlerence=2, break_degree=0.96, field='high', amplitude=20))
+stock_analyzer.add_rule(BreakthroughRule3(amplitude=15))
 start_time = datetime.datetime.now()
 stock_service.preload_data()
-stock_analyzer.backtest('20190101', '20190110')
+stock_analyzer.backtest('20190401', '20190430')
 print(datetime.datetime.now() - start_time)
 
 

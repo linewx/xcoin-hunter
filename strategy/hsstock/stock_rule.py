@@ -188,9 +188,10 @@ class BreakthroughRule3(StockRule):
         highest_value = 0
         lowest_value = 10000
         for one_index, one_data in stock_data[::-1][1:].iterrows():
-            highest_value = max(highest_value, one_data['high'])
-            lowest_value = min(lowest_value, one_data['low'])
+            highest_value = max(highest_value, one_data['close'])
+            lowest_value = min(lowest_value, one_data['close'])
             if one_data[self.field] < latest_data[self.field] * self.break_degree:
+            #if one_data[self.field] > latest_data['low'] / self.break_degree:
                 low_count = low_count + 1
             else:
                 high_count = high_count + 1
@@ -206,7 +207,9 @@ class BreakthroughRule3(StockRule):
                 'low_count': low_count,
                 'highest_value': highest_value,
                 'lowest_value': lowest_value,
-                'pct_change': latest_data['pct_chg']
+                'pct_change': latest_data['pct_chg'],
+                'amplitude': (highest_value / lowest_value - 1) * 100,
+
             }
         else:
             return False,None
