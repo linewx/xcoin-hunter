@@ -30,3 +30,6 @@ class IndexClient:
         data = self.ts_client.index_basic(market = market)
         return data
 
+    def get_daily_info(self, ts_code, trade_date=None, start_date=None, end_date=None):
+        return self.ts_client.index_daily(ts_code=ts_code, trade_date=trade_date, start_date=start_date, end_date=end_date)
+

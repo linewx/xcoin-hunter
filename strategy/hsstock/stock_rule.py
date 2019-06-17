@@ -167,8 +167,54 @@ class BreakthroughRule2(StockRule):
         else:
             return False,None
 
+class BreakthroughDownRule(StockRule):
+    # 向上突破
+    def __init__(self, threashold=10, torlerence=0, break_degree=0.93, field='high', amplitude=20):
+        self.threashold = threashold
+        self.torlerence = torlerence
+        self.break_degree = break_degree
+        self.field = field
+        self.amplitude = amplitude  # 振幅
 
-class BreakthroughRule3(StockRule):
+    def match(self, ts_code, stock_data):
+        if stock_data.empty:
+            return False,None
+
+        # 通过增长率
+        latest_data = stock_data.iloc[-1]
+        low_count = 0
+        high_count = 0
+        highest_value = 0
+        lowest_value = 10000
+        for one_index, one_data in stock_data[::-1][1:].iterrows():
+            highest_value = max(highest_value, one_data['close'])
+            lowest_value = min(lowest_value, one_data['close'])
+            #if one_data[self.field] < latest_data[self.field] * self.break_degree:
+            if one_data[self.field] > latest_data['low'] / self.break_degree:
+                low_count = low_count + 1
+            else:
+                high_count = high_count + 1
+                if high_count <= self.torlerence:
+                    continue
+                else:
+                    break
+
+        if (highest_value / lowest_value - 1) * 100 <= self.amplitude and low_count >= self.threashold:
+            #print(ts_code, low_count, highest_value, lowest_value)
+            return True, {
+                'ts_code': ts_code,
+                'low_count': low_count,
+                'highest_value': highest_value,
+                'lowest_value': lowest_value,
+                'pct_change': latest_data['pct_chg'],
+                'amplitude': (highest_value / lowest_value - 1) * 100,
+
+            }
+        else:
+            return False,None
+
+
+class BreakthroughUpRule(StockRule):
     # 向上突破
     def __init__(self, threashold=10, torlerence=0, break_degree=0.93, field='high', amplitude=20):
         self.threashold = threashold
@@ -215,7 +261,7 @@ class BreakthroughRule3(StockRule):
             return False,None
 
     def get_name(self):
-        return 'break3'
+        return 'break_up'
 
 class RsiRule(StockRule):
     def __init__(self, threshold):
