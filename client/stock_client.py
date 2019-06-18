@@ -15,6 +15,9 @@ class StockClient:
     def get_daily_info(self, trade_date=''):
         return self.ts_client.daily(trade_date=trade_date)
 
+    def get_daily_index_info(self, trade_date=''):
+        return self.ts_client.daily_basic(trade_date=trade_date)
+
 
 
 

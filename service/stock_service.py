@@ -15,6 +15,7 @@ class StockService:
 
         ##### table name #####
         self.history_table_name = 'stock_history'  # 历史行情表
+        self.index_table_name = 'stock_index'  # 历史指标表
         self.basic_info_table_name = 'stock_basic_info'  # 企业基础信息表
         self.trade_cal_table_name = 'stock_trade_cal'
 
@@ -22,6 +23,7 @@ class StockService:
         self.stock_info = None
         self.all_stock_info = None
         self.stock_history_data = {}
+        self.stock_index_data = {}
 
     def preload_data(self, start_date=None, end_date=get_today()):
         if start_date is None:
@@ -86,6 +88,26 @@ class StockService:
             return results
         else:
             return self.stock_history_data[trade_date]
+
+    def get_trade_index_by_date(self, trade_date=None):
+        if trade_date is None:
+            today = datetime.date.today()
+            trade_date = today.strftime("%Y%m%d")
+
+        # step0 : find from memory
+        if trade_date not in self.stock_index_data:
+            # step1: try from database
+            results = pd.read_sql("select * from %s where trade_date = %s" % (self.index_table_name, trade_date),
+                                  self.db_client.get_engine())
+            if results.empty:
+                # step2: try from tushare
+                results = self.stock_client.get_daily_index_info(trade_date=trade_date)
+                if not results.empty:
+                    results.to_sql(self.index_table_name, self.db_client.get_engine(), if_exists='append')
+            self.stock_index_data[trade_date] = results
+            return results
+        else:
+            return self.stock_index_data[trade_date]
 
     def cal_trade_day(self, the_date, days):
         if days >= 0:
