@@ -151,8 +151,48 @@ class StockService:
         date_range = self.get_trade_daterange(start_date, end_date)
         for one_date in date_range:
             one_trade_data = self.get_trade_data_by_date(one_date)
+            one_trade_index = self.get_trade_index_by_date(one_date)
+            if result is None:
+                result = pd.merge(one_trade_data, one_trade_index, how='left', on=['ts_code', 'trade_date'],
+                                  suffixes=['', '_y'])
+            else:
+                result = result.append(
+                    pd.merge(one_trade_data, one_trade_index, how='left', on=['ts_code', 'trade_date'],
+                             suffixes=['', '_y']))
+        return result
+
+    def get_trade_index_data(self, start_date, end_date=get_today()):
+        result = None
+        date_range = self.get_trade_daterange(start_date, end_date)
+        for one_date in date_range:
+            one_trade_data = self.get_trade_index_data(one_date)
             if result is None:
                 result = one_trade_data
             else:
                 result = result.append(one_trade_data)
         return result
+
+
+class StockHelper:
+    @staticmethod
+    def is_daily_up(stockdata):
+        if stockdata['close'] > stockdata['open']:
+            return True
+        else:
+            return False
+
+    #中间线
+    @staticmethod
+    def cal_middle(stockdata):
+        return abs(stockdata['close'] > stockdata['open'])
+
+    #上影线
+    @staticmethod
+    def cal_upper_hatching(stockdata):
+        return stockdata['high'] - max(stockdata['close'], stockdata['open'])
+
+    #下影线
+    @staticmethod
+    def cal_down_hatching(stockdata):
+        return min(stockdata['close'], stockdata['open']) - stockdata['low']
+
