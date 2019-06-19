@@ -176,7 +176,7 @@ class StockService:
 class StockHelper:
     @staticmethod
     def is_daily_up(stockdata):
-        if stockdata['close'] > stockdata['open']:
+        if stockdata['close'] >= stockdata['open']:
             return True
         else:
             return False
@@ -184,7 +184,7 @@ class StockHelper:
     #中间线
     @staticmethod
     def cal_middle(stockdata):
-        return abs(stockdata['close'] > stockdata['open'])
+        return abs(stockdata['close'] - stockdata['open'])
 
     #上影线
     @staticmethod

@@ -9,12 +9,17 @@ from service.stock_service import StockService, StockHelper
 
 
 class StockAnalyzer:
-    def __init__(self, stock_service: StockService):
+    def __init__(self, stock_service: StockService, prefetch_days=100):
         self.rules = []
         self.stock_service = stock_service
+        self.prefetch_days = prefetch_days
 
     def add_rule(self, rule):
         self.rules.append(rule)
+
+    def prefetch_day(self, prefetch_days):
+        self.prefetch_days = prefetch_days
+
 
     def analyze_all(self, start_date, end_date=None):
         trade_dates = self.stock_service.get_trade_daterange(start_date, end_date)
@@ -47,7 +52,7 @@ class StockAnalyzer:
 
     def analyze_on_date(self, the_date):
         # prepare data
-        start_date = self.stock_service.cal_trade_day(the_date, -60)
+        start_date = self.stock_service.cal_trade_day(the_date, 0-self.prefetch_days)
         start_time = datetime.datetime.now()
         # print('starting...')
         stock_data = self.stock_service.get_trade_data(start_date, the_date)
@@ -78,7 +83,14 @@ class StockAnalyzer:
         result = True
         details = {}
         for one_rule in self.rules:
-            result, detail = one_rule.match(ts_code, stock_data)
+            #result, detail = one_rule.match(ts_code, stock_data)
+            the_result = one_rule.match(ts_code, stock_data)
+
+            if isinstance(the_result, bool):
+                result = the_result
+                detail = None
+            else:
+                result, detail = the_result
             if not result:
                 return False, details
             else:
@@ -504,6 +516,16 @@ class KlineShapeRule1(StockRule):
         pass
 
     def match(self, ts_code, stock_data):
+        if len(stock_data) < 3:
+            return False
+
+        last_two_day_data = stock_data.iloc[-2]
         latest_data = stock_data.iloc[-1]
-        StockHelper.ca
+        if not StockHelper.is_daily_up(last_two_day_data) and \
+                StockHelper.cal_down_hatching(last_two_day_data) > StockHelper.cal_middle(last_two_day_data) * 5 and \
+                latest_data['pct_chg'] > 0 and \
+                latest_data['close'] > last_two_day_data['high']:
+            return True
+        else:
+            return False
 
